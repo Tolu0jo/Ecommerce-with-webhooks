@@ -3,3 +3,9 @@ export interface Iuser{
     password: string;
     phone: string;
 }
+
+export interface IuserLogin{
+    email: string;
+    password: string;
+  
+}
