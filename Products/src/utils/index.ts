@@ -2,6 +2,7 @@ import {hash,genSalt} from "bcryptjs"
 import {verify,sign} from "jsonwebtoken"
 import { APP_SECRET } from "../config"
 import { NextFunction } from "express"
+import axios from "axios"
 export const GenerateSalt= async()=>{
     return await genSalt()
 }
@@ -25,7 +26,7 @@ export const formatData =(data:any)=>{
 export const validateSignature = async(req:Request | any)=>{
     try {
       const signature = await req.get("Authorization")
-      console.log(signature)
+      
       const payload = verify(signature.split(" ")[1],APP_SECRET)
       req.user = payload;
       return true;
@@ -33,4 +34,8 @@ export const validateSignature = async(req:Request | any)=>{
       console.log(error)
       return false;
     }  
+  }
+
+  export const PublishCustomerEvent = async(payload:any)=>{
+   await axios.post("http://localhost:8000/customer/app-event", {payload})
   }

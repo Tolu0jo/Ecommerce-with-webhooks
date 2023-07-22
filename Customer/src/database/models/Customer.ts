@@ -5,12 +5,24 @@ export interface ICustomer{
     password:string
     salt:string
     phone:string 
+    cart: Array<Object>
+   
 }
 const CustomerSchema = new Schema({
     email:String,
     password:String,
     salt:String,
     phone:String,
+    cart:[
+        {
+        product: {
+            _id:{type:String, require:true},
+            name:{type:String},
+            banner:{type:String},
+            price:{type:Number},         
+        },
+        unit:{type:Number, require:true},
+    }]
 },{
     toJSON:{
         transform(doc,ret){

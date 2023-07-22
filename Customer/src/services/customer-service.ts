@@ -21,10 +21,12 @@ class CustomerService {
         password: userPassword,
         phone,
         salt,
+        cart:[]
       });
-   
-      const token= GenerateSignature({ email});
+     if(customer){
+      const token= GenerateSignature({ email,_id: customer._id});
       return formatData({customer,token});
+     }
     } catch (error) {
       throw new Error(`${error}`);
       
@@ -33,7 +35,7 @@ class CustomerService {
   async Login(userInput:IuserLogin){
    try {
       const{email,password}=userInput
-      const user = await this.repository.FindCustomer({ email });
+      const user = await this.repository.FindCustomer({ email});
    if (!user) {
       throw new Error("Customer does not exists");
     }
@@ -43,11 +45,34 @@ class CustomerService {
    user.salt
   )
 if(!validPassword) throw new Error("Invalid password")
-const token= GenerateSignature({ email});
+const token= GenerateSignature({ email,_id:user._id});
 return formatData({id:user._id,token});
    } catch (error) {
       throw new Error(`${error}`);
    }  
+  }
+
+  async ManageCart(customerId:string, product:any,qty:number,
+    isRemove:boolean){
+      const cartResult = await this.repository.AddCartItem(customerId,product,qty,isRemove);
+      return cartResult;
+    }
+
+  async SubscriberEvents(payload:any){
+    payload = JSON.parse(payload);
+
+    const {event,data} = payload
+
+    const {userId,product,qty}=data
+
+    switch (event){
+      case 'ADD_TO_CART':
+        this.ManageCart(userId,product,qty,false);
+        break;
+      
+        default:
+          break;
+    }
   }
 }
 

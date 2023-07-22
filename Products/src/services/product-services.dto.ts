@@ -8,3 +8,8 @@ export interface IProductDto{
     available:boolean
     supplier:string
 }
+
+export type ProductPayload ={
+   productId:string
+   qty:number 
+}

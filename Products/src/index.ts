@@ -11,7 +11,7 @@ const StartServer =async ()=>{
     await expressApp(app)
 
     app.listen(PORT, () => {
-        console.log("listening on port " + PORT);
+        console.log("Product listening on port " + PORT);
       }).on('error',(err)=>{
         console.log(err);
         process.exit(1);

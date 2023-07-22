@@ -9,3 +9,10 @@ export interface IuserLogin{
     password: string;
   
 }
+export interface Iproduct{
+    _id:string
+    name:string
+    price:number
+    banner:string
+  
+}

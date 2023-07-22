@@ -11,8 +11,8 @@ export class ProductRepository{
           console.log(error);  
         }
     }
-    // async FindProduct({email}:{email:string}){
-    //   const existingUser = await ProductModel.findOne({email});
-    // return existingUser;
-    // }
+    async FindById({id}:{id:string}){
+      const product = await ProductModel.findOne({id});
+    return product;
+    }
 }

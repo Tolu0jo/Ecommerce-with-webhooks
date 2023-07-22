@@ -4,7 +4,7 @@ import express, { Response, Request, NextFunction } from "express";
 export const Customer = (app: express.Application) => {
   const service = new CustomerService();
   app.post(
-    "/customer/signup",
+    "/signup",
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { email, password, phone } = req.body;
@@ -17,7 +17,7 @@ export const Customer = (app: express.Application) => {
     }
   );
 
-  app.post("/customer/login", async (req: Request, res: Response) => {
+  app.post("/login", async (req: Request, res: Response) => {
     try {
       const { email, password } = req.body;
 

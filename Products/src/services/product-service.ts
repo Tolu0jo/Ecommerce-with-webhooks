@@ -1,6 +1,6 @@
 import { ProductRepository } from "../database";
 import { formatData} from "../utils";
-import { IProductDto } from "./product-services.dto";
+import { IProductDto, ProductPayload } from "./product-services.dto";
 class ProductService {
   repository;
   constructor() {
@@ -34,6 +34,21 @@ class ProductService {
     } catch (error) {
       throw new Error(`${error}`);
     }
+  }
+  async GetProductPayload(userId: string,{productId,qty}:ProductPayload,event:string){
+ try {
+  const product = await this.repository.FindById({id:productId});
+    if(product){
+      const payload={
+        event,
+        data:{userId,product,qty}
+      }
+      return formatData(payload)
+    }
+
+ } catch (error) {
+  throw new Error("Product not found")
+ }
   }
 }
 
