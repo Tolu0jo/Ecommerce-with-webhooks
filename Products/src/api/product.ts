@@ -47,6 +47,7 @@ export const Product = (app: express.Application) => {
         { productId: req.body._id, qty: req.body.qty },
         "ADD_TO_CART"
       );
+      console.log(data)
       PublishCustomerEvent(JSON.stringify(data));
       res.status(200).json(data);
     }
