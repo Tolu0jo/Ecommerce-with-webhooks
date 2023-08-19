@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import logger from "morgan";
-import { Product } from "./api";
+import { Product,appEvent } from "./api";
 
 export const expressApp = async (app: express.Application) => {
   app.use(express.json());
@@ -10,8 +10,10 @@ export const expressApp = async (app: express.Application) => {
 
   app.use(cors());
  
-  //Api
+  //handleEvent
+  appEvent(app)
 
+  //Api
   Product(app)
 
 };

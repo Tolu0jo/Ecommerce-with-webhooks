@@ -16,3 +16,15 @@ export interface Iproduct{
     banner:string
   
 }
+
+export interface IAdress{
+street:string
+postalCode:string
+city:string
+country:string
+}
+export interface IOrder{
+    _id: string;
+    ammount:string;
+    date:Date
+  }

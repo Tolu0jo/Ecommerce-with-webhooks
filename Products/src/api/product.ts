@@ -1,7 +1,9 @@
 import ProductService from "../services/product-service";
 import express, { Response, Request, NextFunction } from "express";
 import userAuth from "./middleware/auth";
-import { PublishCustomerEvent } from "../utils";
+import { PublishCustomerEvent, PublishShoppingEvent } from "../utils";
+
+
 export const Product = (app: express.Application) => {
   const service = new ProductService();
   app.post(
@@ -11,7 +13,7 @@ export const Product = (app: express.Application) => {
       try {
         const {
           name,
-          description,
+          desc,
           banner,
           type,
           unit,
@@ -21,7 +23,7 @@ export const Product = (app: express.Application) => {
         } = req.body;
         const data = await service.ProductCreate({
           name,
-          description,
+          desc,
           banner,
           type,
           unit,
@@ -36,20 +38,142 @@ export const Product = (app: express.Application) => {
       }
     }
   );
+
+//GET PRODUCT BY CATEGORY
+  app.get("/category/:type",async (req: Request | any, res: Response, next: NextFunction)=>{
+    try {
+      const{type}=req.params;
+     const products = await service.GetProductsByCategory(type)
+     return res.status(200).json(products)
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({Error: "Internal Server Error"})
+    }
+  })
+
+  //GET ALL PRODUCT
+  app.get("/",async (req: Request | any, res: Response, next: NextFunction)=>{
+    try {
+      const products = await service.GetProducts()
+      return res.status(200).json(products)
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({Error: "Internal Server Error"})
+    }
+  })
+
+  //GET SINGLE PRODUCT
+  app.get("/:id",async (req: Request, res: Response, next: NextFunction)=>{
+    try {
+      const{id}=req.params;
+      const product = await service.GetProductById(id);
+      return res.status(200).json(product)
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({Error: "Internal Server Error"})
+    }
+  }
+);
+
+//GET SELECT PRODUCTS
+app.post("/products",async (req: Request, res: Response, next: NextFunction)=>{
+  try {
+    const{productIds}=req.body;
+    const products = await service.GetSelectedProducts(productIds);
+    return res.status(200).json(products)
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({Error: "Internal Server Error"})
+  }
+})
+
+//ADD WISHLIST;
+app.put(
+  "/wishlist",
+  userAuth,
+  async (req: Request | any, res: Response, next: NextFunction) => {
+    const { _id } = req.user;
+
+    const data = await service.GetProductPayload(
+      _id,
+      { productId: req.body._id, qty: req.body.qty },
+      "ADD_TO_WISHLIST" 
+    );
+
+    PublishCustomerEvent(JSON.stringify(data));
+    res.status(200).json(data.data.product);
+  }
+);
+
+//DELETE WISHLIST
+
+app.delete("/wishlist/:id",userAuth, async (req: Request | any, res: Response, next: NextFunction) => {
+  try {
+   const{id}=req.params;
+   const { _id } = req.user;
+   const data = await service.GetProductPayload(
+    _id,
+    { productId:id, qty: req.body.qty },
+    "REMOVE_FROM_WISHLIST" 
+  );
+  PublishCustomerEvent(JSON.stringify(data));
+  res.status(200).json(data.data.product);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({Error: "Internal Server Error"})
+  }
+})
+
   app.put(
     "/cart",
     userAuth,
     async (req: Request | any, res: Response, next: NextFunction) => {
-      const { _id } = req.user;
+      try {
+        const { _id } = req.user;
 
-      const data = await service.GetProductPayload(
-        _id,
-        { productId: req.body._id, qty: req.body.qty },
-        "ADD_TO_CART"
-      );
-      console.log(data)
-      PublishCustomerEvent(JSON.stringify(data));
-      res.status(200).json(data);
+        const data = await service.GetProductPayload(
+          _id,
+          { productId: req.body._id, qty: req.body.qty },
+          "ADD_TO_CART"
+        );
+   
+        PublishCustomerEvent(JSON.stringify(data));
+        PublishShoppingEvent(JSON.stringify(data));
+  
+        const response ={
+          product:data.data.product,
+          unit:data.data.qty,
+        }
+        res.status(200).json(response);
+      
+      } catch (error) {
+        console.log(error);
+        res.status(500).json({Error: "Internal Server Error"})
+      }
     }
   );
+
+  app.delete("/cart/:id",userAuth, async (req: Request | any, res: Response, next: NextFunction) => {
+    try {
+     const{id}=req.params;
+     const { _id } = req.user;
+     const data = await service.GetProductPayload(
+      _id,
+      { productId:id, qty: req.body.qty },
+      "REMOVE_FROM_CART" 
+    );
+    
+    PublishCustomerEvent(JSON.stringify(data));
+    PublishShoppingEvent(JSON.stringify(data));
+
+    const response ={
+      product:data.data.product,
+      unit:data.data.qty,
+    }
+    res.status(200).json(response);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({Error: "Internal Server Error"})
+    }
+  })
 };
