@@ -5,7 +5,16 @@ export interface ICustomer {
   password: string;
   salt: string;
   phone: string;
-  cart: Array<Object>;
+  cart: Array<{
+    product:{
+      _id: string;
+      name: string;
+      price: number;
+      banner: string;
+    },
+    unit:number;
+  
+  }>;
   address: Array<Object>;
   wishList: Array<Object>;
   orders: Array<Object>;
@@ -24,7 +33,7 @@ const CustomerSchema = new Schema(
           banner: { type: String },
           price: { type: Number },
         },
-        unit: { type: Number, require: true },
+        unit:{ type: Number, require: true },
       },
     ],
     address: [

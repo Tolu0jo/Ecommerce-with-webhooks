@@ -11,7 +11,6 @@ class ProductService {
   async ProductCreate(productInput: IProductDto) {
     try {
       const product = await this.repository.CreateProduct(productInput);
-
       return formatData(product);
     } catch (error) {
       throw new Error(`${error}`);
@@ -63,6 +62,7 @@ class ProductService {
   async GetProductPayload(
     userId: string,
     { productId, qty }: ProductPayload,
+
     event: string
   ) {
     try {

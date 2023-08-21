@@ -113,7 +113,7 @@ app.delete("/wishlist/:id",userAuth, async (req: Request | any, res: Response, n
    const { _id } = req.user;
    const data = await service.GetProductPayload(
     _id,
-    { productId:id, qty: req.body.qty },
+    { productId:id, qty: req.body.qty},
     "REMOVE_FROM_WISHLIST" 
   );
   PublishCustomerEvent(JSON.stringify(data));

@@ -38,11 +38,12 @@ export const Shopping = (app: express.Application) => {
   app.get("/orders", userAuth, async (req: Request | any, res: Response) => {
     try {
       const { _id } = req.user;
-      const cart = await service.GetOrder(_id);
-      if (cart) return res.status(200).json(cart);
+      const order = await service.GetOrder(_id);
+      const totalPrice = order.reduce((total:number ,order:{amount:number})=> total + order.amount,0)
+      if (order) return res.status(200).json({order,totalPrice});
     } catch (error) {
       console.log(error);
-      return res.status(500).json({ Error: "Internal Server Error" });
+      return res.status(500).json({ Error: "Internal Server Error" })
     }
   });
 };

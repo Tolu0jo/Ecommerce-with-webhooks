@@ -121,18 +121,19 @@ class CustomerService {
 
   //ADD WISHLIST
 
-  async AddToWishList(customerId: string, product: Iproduct) {
+  async AddToWishList(customerId: string, product: Iproduct,event: string,isRemove: boolean) {
     try {
+    
       const wishLists = await this.repository.AddWishListItem(
         customerId,
-        product
+        product,isRemove
       );
       return formatData(wishLists);
     } catch (error) {
       console.log(error);
     }
   }
-
+       
   async ManageOrder(customerId: string, order: IOrder) {
     try {
       const orderResult = await this.repository.AddOrderToProfile(
@@ -160,7 +161,7 @@ class CustomerService {
     return cartResult;
   }
 
-  async SubscriberEvents(payload: any) {
+  async SubscriberEvents (payload: any) {
     payload = JSON.parse(payload);
 
     const { event, data } = payload;
@@ -168,21 +169,34 @@ class CustomerService {
     const { userId, product, order, qty } = data;
 
     switch (event) {
-      case "ADD_TO_WISHLIST":
-      case "REMOVE_FROM_WISHLIST":
-        this.AddToWishList(userId, product);
+       case "ADD_TO_WISHLIST":
+        await this.AddToWishList(userId, product,event,false);
+        break;
+       case "REMOVE_FROM_WISHLIST":
+       await this.AddToWishList(userId, product,event,true);
         break;
       case "ADD_TO_CART":
-        this.ManageCart(userId, product, qty, false);
-        break;
+       await this.ManageCart(userId, product, qty, false);
+       break;
       case "REMOVE_FROM_CART":
-        this.ManageCart(userId, product, qty, true);
+       await this.ManageCart(userId, product, qty, true);
         break;
       case "CREATE_ORDER":
-        this.ManageOrder(userId, order);
+       await this.ManageOrder(userId, order);
         break;
       default:
         break;
+    }
+  }
+
+  async DeleteCustomer(customerId: string) {
+    try {
+      const deletedCustomer = await this.repository.DeleteUser(customerId);
+      if (deletedCustomer) {
+        return formatData(deletedCustomer);
+      }
+    } catch (error) {
+      console.log(error);
     }
   }
 }

@@ -58,33 +58,35 @@ export class CustomerRepository {
   }
 
   //AddWishList
-  async AddWishListItem(customerId: string, product: Iproduct) {
+  async AddWishListItem(
+    customerId: string,
+    product: Iproduct,
+    isRemove: boolean
+  ) {
     try {
       const profile = await CustomerModel.findById(customerId).populate(
         "wishList"
       );
+
       if (profile) {
         const wishList = profile.wishList;
-        if (wishList.length > 0) {
-          let isExist = false;
-          wishList.map((item: any) => {
-            if (item._id.toString() === product._id.toString()) {
-              const index = wishList.indexOf(item);
-              wishList.splice(index, 1);
-              isExist = true;
-            }
-          });
-          if (isExist) {
-            wishList.push(product);
+        const existingIndex = wishList.findIndex(
+          (item: any) => item._id.toString() === product._id.toString()
+        );
+
+        if (isRemove) {
+          if (existingIndex !== -1) {
+            wishList.splice(existingIndex, 1);
           }
         } else {
-          wishList.push(product);
+          if (existingIndex === -1) {
+            wishList.push(product);
+          }
         }
-        profile.wishList = wishList;
-      }
-      const profileResult = await profile?.save();
 
-      return profileResult?.wishList;
+        const profileResult = await profile.save();
+        return profileResult.wishList;
+      }
     } catch (error) {
       console.log(error);
     }
@@ -94,50 +96,37 @@ export class CustomerRepository {
 
   async AddCartItem(
     customerId: string,
-    { _id, name, price, banner }: Iproduct,
+    product: Iproduct,
     qty: number,
     isRemove: boolean
   ) {
     try {
       const profile = await CustomerModel.findById(customerId).populate("cart");
+    
       if (profile) {
-        const cartItem = {
-          product: {
-            _id,
-            name,
-            price,
-            banner,
-          },
-          unit: qty,
-        };
+        const cartItem = { product, unit: qty };
+        const cartItems = profile.cart;
 
-        let cartItems = profile.cart;
-        if (cartItems.length > 0) {
-          let isExist = false;
+        const existingIndex = cartItems.findIndex(
+          (item: any) => item.product._id.toString() === cartItem.product._id.toString()
+        );
 
-          cartItems.map((item: any) => {
-            if (item.product._id.toString() === _id.toString()) {
-              if (isRemove) {
-                cartItems.splice(cartItems.indexOf(item), 1);
-              } else {
-                item.unit = qty;
-              }
-              isExist = true;
-            }
-          });
-
-          if (!isExist) {
-            cartItems.push(cartItem);
+        if (isRemove) {
+          if (existingIndex !== -1) {
+            cartItems.splice(existingIndex, 1);
           }
         } else {
-          cartItems.push(cartItem);
+          if (existingIndex === -1) {
+            cartItems.push(cartItem);
+          } else {
+            cartItems[existingIndex].unit = qty;
+          }
         }
 
-        profile.cart = cartItems;
 
         const cartSaveResult = await profile.save();
 
-        return cartSaveResult;
+        return cartSaveResult.cart;
       }
       throw new Error("Unable to save to cart");
     } catch (error) {
@@ -168,22 +157,34 @@ export class CustomerRepository {
 
   async CreateAddress(customerId: string, address: IAddress) {
     try {
-      const profile = await CustomerModel.findById(customerId)
-
+      const profile = await CustomerModel.findById(customerId);
       if (profile) {
-        const newAddress = new AddressModel(
-          address
-      );
-         await newAddress.save();
-        const profileAddress = profile.address;
+        const profileAddress = profile?.address;
 
-        profileAddress.push(newAddress);
-      };
-     
-      return await profile?.save();
-   
+        if (profileAddress.length === 0) {
+          const newAddress = new AddressModel(address);
+          await newAddress.save();
+          profileAddress.push(newAddress);
+
+          await profile.save();
+          return newAddress;
+        } else {
+          const adresssToUpdate = await AddressModel.findByIdAndUpdate(
+            profileAddress[0]
+          );
+          const adresss = await adresssToUpdate?.updateOne(address);
+          return adresss;
+        }
+      }
     } catch (error) {
       console.log(error);
+    }
+  }
+
+  async DeleteUser(customerId: string) {
+    const profile = await CustomerModel.findById(customerId);
+    if (profile) {
+      return profile.deleteOne();
     }
   }
 }

@@ -8,9 +8,10 @@ app.use(cors());
 
 app.use(express.json());
 
-app.use ('/',proxy("http://localhost:8001")) //customer
 app.use ('/product',proxy("http://localhost:8002"))
 app.use ('/shopping',proxy("http://localhost:8003"))
+
+app.use ('/',proxy("http://localhost:8001")) //customer
 
 
 

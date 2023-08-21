@@ -30,11 +30,13 @@ export class ShoppingRepository {
     isRemove: boolean
   ) {
     try {
+ 
       const cart = await CartModel.findOne({ customerId });
       const { _id } = item;
       if (cart) {
         let isExist = false;
         let cartItems = cart.items;
+      
         if (cartItems.length > 0) {
           cartItems.map((item: any) => {
             if (item.product._id.toString() === _id.toString()) {
@@ -47,7 +49,7 @@ export class ShoppingRepository {
             }
           });
         }
-        if (!isExist && isRemove) {
+        if (!isExist && !isRemove) {
           cartItems.push({ product: { ...item }, unit: qty });
         }
         cart.items = cartItems;
@@ -57,6 +59,7 @@ export class ShoppingRepository {
           customerId,
           items: { product: { ...item }, unit: qty },
         });
+        
       }
     } catch (error) {
       console.log(error);
@@ -88,7 +91,8 @@ export class ShoppingRepository {
           });
 
           cart.items = [];
-
+          
+           await cart.save()
           const orderResult = await order.save();
           return orderResult;
         }

@@ -10,26 +10,26 @@ export interface IOrder {
 }
 const OrderSchema = new Schema(
   {
-    orderId: String,
-    customerId: String,
-    amount: Number,
-    status: String,
-    transactionId: String,
-    items: [
-      {
-        product: {
-          _id: { type: String, require: true },
-          name: { type: String },
-          desc: { type: String },
-          type: { type: String },
-          unit: { type: String },
-          banner: { type: String },
-          supplier: { type: String },
-          price: { type: Number },
-        },
-        unit: { type: Number, require: true },
-      }
-    ],
+  orderId: String,
+  customerId: String,
+  amount: Number,
+  status: String,
+  transactionId: String,
+  items: [
+    {
+      product: {
+        _id: { type: String, require: true },
+        name: { type: String },
+        desc: { type: String },
+        type: { type: String },
+        unit: { type: String },
+        banner: { type: String },
+        supplier: { type: String },
+        price: { type: Number },
+      },
+      unit: { type: Number, require: true },
+    }
+  ],
   },
   {
     toJSON: {

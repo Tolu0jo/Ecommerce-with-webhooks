@@ -101,4 +101,15 @@ export const Customer = (app: express.Application) => {
       return res.status(500).json({ Error: "Internal Server Error" });
     }
   });
+
+  app.delete("/delete/:id", async (req: Request | any, res: Response) => {
+    try {
+      const {id} = req.params
+      const deleted = await service.DeleteCustomer(id)
+      if (deleted) return res.status(200).json({message:"Deleted successfully",deleted});
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ Error: "Internal Server Error" });
+    }
+  })
 };

@@ -15,7 +15,7 @@ export class ProductRepository {
   //FIND PRODUCT BY ID
   async FindProductById(id: string) {
     try {
-      const product = await ProductModel.findOne({ id });
+      const product = await ProductModel.findById( id );
       return product;
     } catch (error) {
       console.log(error);
